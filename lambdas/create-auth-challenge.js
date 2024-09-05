@@ -21,7 +21,7 @@ export const handler = async (event) => {
     throw new Error("user doesn't exist");
   }
 
-  const { url } = await authsignal.track({
+  const { token } = await authsignal.track({
     action: "cognitoAuth",
     userId,
     email,
@@ -29,7 +29,7 @@ export const handler = async (event) => {
     redirectToSettings: false,
   });
 
-  event.response.publicChallengeParameters = { url };
+  event.response.publicChallengeParameters = { token };
 
   return event;
 };

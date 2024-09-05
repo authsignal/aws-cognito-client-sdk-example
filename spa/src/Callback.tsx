@@ -1,19 +1,25 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { RespondToAuthChallengeCommand, CognitoIdentityProviderClient, ChallengeNameType } from "@aws-sdk/client-cognito-identity-provider";
+import {
+  RespondToAuthChallengeCommand,
+  CognitoIdentityProviderClient,
+  ChallengeNameType,
+} from "@aws-sdk/client-cognito-identity-provider";
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: "us-west-2" });
+const cognitoClient = new CognitoIdentityProviderClient({
+  region: "us-west-2",
+});
 const cognitoClientId = import.meta.env.VITE_COGNITO_CLIENT_ID!;
 
 const respondToCallback = async (navigate: ReturnType<typeof useNavigate>) => {
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
+  const token = urlParams.get("token");
   const session = localStorage.getItem("session");
   const username = localStorage.getItem("username");
 
   if (!token || !session || !username) {
     navigate("/");
-    return
+    return;
   }
 
   try {
@@ -27,27 +33,32 @@ const respondToCallback = async (navigate: ReturnType<typeof useNavigate>) => {
       },
     };
 
-    const respondToAuthChallengeCommand =
-      new RespondToAuthChallengeCommand(respondToAuthChallengeInput);
-
-    const response = await cognitoClient.send(
-      respondToAuthChallengeCommand
+    const respondToAuthChallengeCommand = new RespondToAuthChallengeCommand(
+      respondToAuthChallengeInput
     );
+
+    const response = await cognitoClient.send(respondToAuthChallengeCommand);
 
     localStorage.setItem("token", token);
     if (response.AuthenticationResult?.AccessToken) {
-      localStorage.setItem("accessToken", response.AuthenticationResult?.AccessToken);
+      localStorage.setItem(
+        "accessToken",
+        response.AuthenticationResult?.AccessToken
+      );
     }
 
     if (response.AuthenticationResult?.RefreshToken) {
-      localStorage.setItem("refreshToken", response.AuthenticationResult?.RefreshToken);
+      localStorage.setItem(
+        "refreshToken",
+        response.AuthenticationResult?.RefreshToken
+      );
     }
 
     navigate("/");
   } catch (err) {
     // do nothing
   }
-}
+};
 
 export function Callback() {
   const navigate = useNavigate();

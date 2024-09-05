@@ -1,7 +1,15 @@
 import { useState } from "react";
-import { AuthFlowType, InitiateAuthCommand, SignUpCommand, CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider'
+import {
+  AuthFlowType,
+  InitiateAuthCommand,
+  SignUpCommand,
+  CognitoIdentityProviderClient,
+} from "@aws-sdk/client-cognito-identity-provider";
+import { Authenticate } from "./authenticate";
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: "us-west-2" });
+const cognitoClient = new CognitoIdentityProviderClient({
+  region: "us-west-2",
+});
 const cognitoClientId = import.meta.env.VITE_COGNITO_CLIENT_ID!;
 
 async function signIn(username: string) {
@@ -13,9 +21,7 @@ async function signIn(username: string) {
     },
   };
 
-  const initiateAuthCommand = new InitiateAuthCommand(
-    initiateAuthInput
-  );
+  const initiateAuthCommand = new InitiateAuthCommand(initiateAuthInput);
 
   return await cognitoClient.send(initiateAuthCommand);
 }
@@ -23,16 +29,21 @@ async function signIn(username: string) {
 async function signUp(username: string) {
   const randomByteArray = new Uint8Array(32);
   self.crypto.getRandomValues(randomByteArray);
-  const asciiString = randomByteArray.reduce((acc, val) => acc + String.fromCharCode(val), "");
+  const asciiString = randomByteArray.reduce(
+    (acc, val) => acc + String.fromCharCode(val),
+    ""
+  );
   const password = window.btoa(asciiString);
 
   const signUpInput = {
     ClientId: cognitoClientId,
     Username: username,
     Password: password,
-  }
+  };
 
   const signUpCommand = new SignUpCommand(signUpInput);
+
+  console.log({ signUpCommand, username, password, cognitoClientId });
 
   return await cognitoClient.send(signUpCommand);
 }
@@ -41,6 +52,7 @@ async function handleSignInClick(username: string) {
   clearData();
 
   const signInResponse = await signIn(username).catch(async () => {
+    console.log("calling sign up");
     await signUp(username);
     return await signIn(username);
   });
@@ -50,9 +62,15 @@ async function handleSignInClick(username: string) {
     localStorage.setItem("username", username);
   }
 
-  if (signInResponse.ChallengeParameters?.url) {
-    window.location.href = signInResponse.ChallengeParameters?.url;
-  }
+  console.log({ signInResponse });
+
+  const token = signInResponse.ChallengeParameters?.token;
+
+  return token;
+
+  // if (signInResponse.ChallengeParameters?.url) {
+  //   window.location.href = signInResponse.ChallengeParameters?.url;
+  // }
 }
 
 function clearData() {
@@ -66,6 +84,12 @@ function clearData() {
 export function SignIn() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [initialToken, setInitialToken] = useState<null | string>(null);
+
+  if (initialToken) {
+    return <Authenticate initialToken={initialToken}></Authenticate>;
+  }
 
   return (
     <main>
@@ -82,7 +106,11 @@ export function SignIn() {
           onClick={async () => {
             setLoading(true);
 
-            await handleSignInClick(username);
+            const token = await handleSignInClick(username);
+
+            console.log("Setting token");
+
+            setInitialToken(token || null);
 
             setLoading(false);
           }}

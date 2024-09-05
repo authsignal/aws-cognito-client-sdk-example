@@ -1,41 +1,31 @@
-import React from "react"
-import ReactDOM from "react-dom/client"
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import { Home } from "./Home.tsx"
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Home } from "./Home.tsx";
 import { SignIn } from "./SignIn.tsx";
 import { Callback } from "./Callback.tsx";
-import "./index.css"
-
+import { Providers } from "./providers"; // Import Providers
+import "./index.css";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <Home />
-    ),
+    element: <Home />,
   },
   {
     path: "sign-in",
-    element: (
-      <SignIn />
-    ),
+    element: <SignIn />,
   },
   {
     path: "callback",
-    element: (
-      <Callback />
-    ),
+    element: <Callback />,
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>,
-)
-
-
-
+    <Providers>
+      <RouterProvider router={router} />
+    </Providers>
+  </React.StrictMode>
+);
