@@ -23,23 +23,27 @@ type VerifyEmailMagicLinkFinalizeResponse =
 function useVerifyEmailMagicLinkFinalize() {
   const { api } = useSignalApi();
 
-  const onVerificationSuccess = useOnVerificationSuccess();
+  const { onVerificationSuccess, isCognitoSignInLoading } =
+    useOnVerificationSuccess();
 
-  return useQuery({
-    queryKey: ["magic-link"],
-    queryFn: () =>
-      api
-        .post(`v1/client/verify/email-magic-link/finalize`)
-        .json<VerifyEmailMagicLinkFinalizeResponse>(),
-    onSuccess: (response: VerifyEmailMagicLinkFinalizeResponse) => {
-      if (response.isVerified) {
-        onVerificationSuccess(response);
-      }
-    },
-    refetchInterval: (data) => (data?.isVerified ? false : 1000),
-    refetchIntervalInBackground: true,
-    cacheTime: 0, // Do not cache the result to ensure that each individual magic link is verified
-  });
+  return {
+    isCognitoSignInLoading,
+    verifyEmailMagicLinkFinalize: useQuery({
+      queryKey: ["magic-link"],
+      queryFn: () =>
+        api
+          .post(`v1/client/verify/email-magic-link/finalize`)
+          .json<VerifyEmailMagicLinkFinalizeResponse>(),
+      onSuccess: (response: VerifyEmailMagicLinkFinalizeResponse) => {
+        if (response.isVerified) {
+          onVerificationSuccess(response);
+        }
+      },
+      refetchInterval: (data) => (data?.isVerified ? false : 1000),
+      refetchIntervalInBackground: true,
+      cacheTime: 0, // Do not cache the result to ensure that each individual magic link is verified
+    }),
+  };
 }
 
 export { useVerifyEmailMagicLinkFinalize };

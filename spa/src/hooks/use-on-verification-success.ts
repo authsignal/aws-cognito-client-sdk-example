@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { VerificationMethod } from "@/api/types";
 import { getRedirectUrl } from "@/store";
 import { useNavigate } from "react-router-dom";
+import { useCognitoSignIn } from "./use-cognito-sign-in";
 
 export const VERIFICATION_METHOD_TO_CHALLENGE_ROUTE_MAP: Record<
   VerificationMethod,
@@ -24,18 +25,22 @@ export const VERIFICATION_METHOD_TO_CHALLENGE_ROUTE_MAP: Record<
 function useOnVerificationSuccess() {
   const navigate = useNavigate();
 
+  const { cognitoSignIn, isLoading: isCognitoSignInLoading } =
+    useCognitoSignIn();
+
   const onVerificationSuccess = useCallback(
-    (response: Response) => {
+    async (response: Response) => {
       console.log("onVerificationSuccess", response.accessToken);
       if (!getRedirectUrl()) {
         console.log("navigate to /callback");
-        navigate(`/callback?token=${response.accessToken}`);
+
+        await cognitoSignIn(response.accessToken);
       }
     },
     [navigate]
   );
 
-  return onVerificationSuccess;
+  return { onVerificationSuccess, isCognitoSignInLoading };
 }
 
 export { useOnVerificationSuccess };

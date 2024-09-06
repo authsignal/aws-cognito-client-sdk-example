@@ -9,7 +9,6 @@ import {
   useVerifyEmailMagicLinkFinalize,
 } from "@/api";
 
-import { VerificationMethod } from "@/api/types";
 import { Main } from "@/components/layouts";
 import { SkeletonText } from "@/components/shared/skeleton-page";
 import { SuccessToast, Toaster } from "@/components/shared/toast";
@@ -22,8 +21,10 @@ import { useOnVerificationSuccess } from "../hooks";
 export function EmailMagicLinkChallengePage() {
   const { data: authenticator } = useEmailMagicLinkAuthenticator();
   const { mutate: challenge, isLoading } = useChallengeEmailMagicLink();
-  const { data: verifyMagicLinkFinalizeResponse } =
-    useVerifyEmailMagicLinkFinalize();
+  const {
+    verifyEmailMagicLinkFinalize: verifyMagicLinkFinalizeResponse,
+    isCognitoSignInLoading,
+  } = useVerifyEmailMagicLinkFinalize();
 
   const onVerificationSuccess = useOnVerificationSuccess();
 
@@ -52,6 +53,14 @@ export function EmailMagicLinkChallengePage() {
       ));
     }
   };
+
+  if (isCognitoSignInLoading) {
+    return (
+      <Main>
+        <Paragraph>Getting Cognito token</Paragraph>
+      </Main>
+    );
+  }
 
   return (
     <>
