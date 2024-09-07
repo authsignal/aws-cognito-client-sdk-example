@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+
 import {
   RespondToAuthChallengeCommand,
   CognitoIdentityProviderClient,
@@ -12,7 +12,6 @@ import {
   Authenticator,
   EmailMagicLinkAuthenticator,
 } from "@/api/userAuthenticator/types";
-import { VerificationMethod } from "@/api/types";
 import { useNavigate } from "react-router-dom";
 
 type ChallengeEmailOtpBody = { userAuthenticatorId: string };
@@ -131,10 +130,7 @@ export function EmailMagicLinkChallengePage({
           (
             authenticator: Authenticator
           ): authenticator is EmailMagicLinkAuthenticator => {
-            return (
-              authenticator.verificationMethod ===
-              VerificationMethod.EMAIL_MAGIC_LINK
-            );
+            return authenticator.verificationMethod === "EMAIL_MAGIC_LINK";
           }
         );
       };

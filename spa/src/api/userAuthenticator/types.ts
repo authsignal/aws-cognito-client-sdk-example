@@ -1,12 +1,31 @@
-import { CredentialDeviceType } from "@simplewebauthn/types";
-
-import { AuthenticatorType, VerificationMethod } from "../types";
-
 type BaseAuthenticator = {
   userAuthenticatorId: string;
   createdAt: string;
   isDefault: boolean;
 };
+
+enum AuthenticatorType {
+  OTP = "OTP",
+  OOB = "OOB",
+  SECURITY_KEY = "SECURITY_KEY",
+  PASSKEY = "PASSKEY",
+  PROVIDER = "PROVIDER",
+  PUSH = "PUSH",
+}
+
+export enum VerificationMethod {
+  SMS = "SMS",
+  AUTHENTICATOR_APP = "AUTHENTICATOR_APP",
+  RECOVERY_CODE = "RECOVERY_CODE",
+  EMAIL_MAGIC_LINK = "EMAIL_MAGIC_LINK",
+  EMAIL_OTP = "EMAIL_OTP",
+  SECURITY_KEY = "SECURITY_KEY",
+  PASSKEY = "PASSKEY",
+  PUSH = "PUSH",
+  IPROOV = "IPROOV",
+  VERIFF = "VERIFF",
+  IDVERSE = "IDVERSE",
+}
 
 export type AuthenticatorAppAuthenticator = BaseAuthenticator & {
   authenticatorType: AuthenticatorType.OTP;
