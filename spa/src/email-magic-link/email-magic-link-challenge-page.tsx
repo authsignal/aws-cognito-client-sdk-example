@@ -7,8 +7,6 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 
 import { Main } from "@/components/layouts";
-import { SkeletonText } from "@/components/shared/skeleton-page";
-import { SuccessToast, Toaster } from "@/components/shared/toast";
 import { useSignalApi } from "@/lib/signal-api";
 import {
   Authenticator,
@@ -163,10 +161,6 @@ export function EmailMagicLinkChallengePage({
       sendEmailMagicLink({
         userAuthenticatorId: authenticator.userAuthenticatorId,
       });
-
-      toast.custom((activeToast) => (
-        <SuccessToast activeToast={activeToast}>link-re-sent</SuccessToast>
-      ));
     }
   };
 
@@ -203,8 +197,6 @@ export function EmailMagicLinkChallengePage({
 
   return (
     <>
-      <Toaster />
-      {/* <ChallengeFlowHeader /> */}
       <Main>
         <h1>Email Magic Link</h1>
         <p>
@@ -213,7 +205,7 @@ export function EmailMagicLinkChallengePage({
           {authenticator?.email ? (
             <strong>{authenticator.email}</strong>
           ) : (
-            <SkeletonText>place@holder.com</SkeletonText>
+            "place@holder.com"
           )}
         </p>
         <p>It could take a minute for the email to arrive</p>
