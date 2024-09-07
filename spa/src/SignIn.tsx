@@ -5,7 +5,6 @@ import {
   SignUpCommand,
   CognitoIdentityProviderClient,
 } from "@aws-sdk/client-cognito-identity-provider";
-import { Authenticate } from "./authenticate";
 import { EmailMagicLinkChallengePage } from "./email-magic-link/email-magic-link-challenge-page";
 
 const cognitoClient = new CognitoIdentityProviderClient({
