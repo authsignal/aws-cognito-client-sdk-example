@@ -1,14 +1,25 @@
-import { useAtom } from "jotai";
 import ky from "ky";
 import { useMemo } from "react";
 
-import { getPrefixUrlForRegion } from "@/helpers/api";
+export function getPrefixUrlForRegion(region?: string) {
+  switch (region) {
+    case "au":
+      return "https://au.api.authsignal.com/v1";
+    case "eu":
+      return "https://eu.api.authsignal.com/v1";
+    case "us":
+      return "https://api.authsignal.com";
+    default: {
+      return "https://api.authsignal.com";
+    }
+  }
+}
 
-import { Region, regionAtom } from "@/store/session-config";
+type Region = "au" | "eu" | "us";
+
+const region = "us";
 
 export function useSignalApi({ initialToken }: { initialToken: string }) {
-  const [region] = useAtom(regionAtom);
-
   const prefixUrl = getPrefixUrlForRegion(region);
 
   const api = useMemo(
@@ -18,8 +29,6 @@ export function useSignalApi({ initialToken }: { initialToken: string }) {
         hooks: {
           beforeRequest: [
             (request: Request) => {
-              // const accessToken = getAccessToken();
-
               if (initialToken) {
                 request.headers.set("Authorization", `Bearer ${initialToken}`);
               }
@@ -27,7 +36,7 @@ export function useSignalApi({ initialToken }: { initialToken: string }) {
           ],
         },
       }),
-    [prefixUrl]
+    [initialToken, prefixUrl]
   );
 
   return { api };

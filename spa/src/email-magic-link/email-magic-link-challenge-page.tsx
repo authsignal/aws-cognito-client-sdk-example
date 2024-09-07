@@ -9,7 +9,6 @@ import {
 import { Main } from "@/components/layouts";
 import { SkeletonText } from "@/components/shared/skeleton-page";
 import { SuccessToast, Toaster } from "@/components/shared/toast";
-import { H1, Paragraph } from "@/components/shared/typography";
 import { useSignalApi } from "@/lib/signal-api";
 import {
   Authenticator,
@@ -197,7 +196,7 @@ export function EmailMagicLinkChallengePage({
   if (isCognitoSignInLoading) {
     return (
       <Main>
-        <Paragraph>Getting Cognito token</Paragraph>
+        <p>Getting Cognito token</p>
       </Main>
     );
   }
@@ -207,8 +206,8 @@ export function EmailMagicLinkChallengePage({
       <Toaster />
       {/* <ChallengeFlowHeader /> */}
       <Main>
-        <H1>Email Magic Link</H1>
-        <Paragraph>
+        <h1>Email Magic Link</h1>
+        <p>
           Check your email:
           <br />
           {authenticator?.email ? (
@@ -216,9 +215,9 @@ export function EmailMagicLinkChallengePage({
           ) : (
             <SkeletonText>place@holder.com</SkeletonText>
           )}
-        </Paragraph>
-        <Paragraph>It could take a minute for the email to arrive</Paragraph>
-        <Paragraph>refresh-close-warning</Paragraph>
+        </p>
+        <p>It could take a minute for the email to arrive</p>
+        <p>refresh-close-warning</p>
         <a onClick={resendLink}>re-send-link</a>
         <hr className="w-full border-divider" />
         {/* <FooterLinks
