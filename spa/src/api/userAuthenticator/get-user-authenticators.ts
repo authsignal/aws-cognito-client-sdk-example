@@ -58,7 +58,8 @@ function useEmailMagicLinkAuthenticator() {
 
   return useQuery({
     queryKey: [USER_AUTHENTICATORS_QUERY_KEY],
-    queryFn: () => api.get(PATH).json<Authenticator[]>(),
+    queryFn: () =>
+      api.get("v1/client/user-authenticators").json<Authenticator[]>(),
     select: (authenticators) =>
       authenticators.find(isEmailMagicLinkAuthenticator),
     staleTime: Infinity,

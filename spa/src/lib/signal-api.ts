@@ -20,8 +20,6 @@ export function useSignalApi() {
             (request: Request) => {
               const accessToken = getAccessToken();
 
-              console.log("accessToken", accessToken);
-
               if (accessToken) {
                 request.headers.set("Authorization", `Bearer ${accessToken}`);
               }
