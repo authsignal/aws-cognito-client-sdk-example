@@ -6,7 +6,6 @@ import {
   ChallengeNameType,
 } from "@aws-sdk/client-cognito-identity-provider";
 
-import { Main } from "@/components/layouts";
 import { useSignalApi } from "@/lib/signal-api";
 import {
   Authenticator,
@@ -185,15 +184,15 @@ export function EmailMagicLinkChallengePage({
 
   if (isCognitoSignInLoading) {
     return (
-      <Main>
+      <main className="custom-content-alignment flex flex-col gap-y-4">
         <p>Getting Cognito token</p>
-      </Main>
+      </main>
     );
   }
 
   return (
     <>
-      <Main>
+      <main className="custom-content-alignment flex flex-col gap-y-4">
         <h1>Email Magic Link</h1>
         <p>
           Check your email:
@@ -212,7 +211,7 @@ export function EmailMagicLinkChallengePage({
           fromUrl="/challenge/email-magic-link"
           verificationMethod={VerificationMethod.EMAIL_MAGIC_LINK}
         /> */}
-      </Main>
+      </main>
     </>
   );
 }
