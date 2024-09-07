@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 
@@ -14,19 +12,10 @@ import { SkeletonText } from "@/components/shared/skeleton-page";
 import { SuccessToast, Toaster } from "@/components/shared/toast";
 import { H1, Paragraph } from "@/components/shared/typography";
 
-// import { ChallengeFlowHeader } from "../components/challenge-flow-header";
-
-import { useOnVerificationSuccess } from "../hooks";
-
 export function EmailMagicLinkChallengePage() {
   const { data: authenticator } = useEmailMagicLinkAuthenticator();
   const { mutate: challenge, isLoading } = useChallengeEmailMagicLink();
-  const {
-    verifyEmailMagicLinkFinalize: verifyMagicLinkFinalizeResponse,
-    isCognitoSignInLoading,
-  } = useVerifyEmailMagicLinkFinalize();
-
-  const onVerificationSuccess = useOnVerificationSuccess();
+  const { isCognitoSignInLoading } = useVerifyEmailMagicLinkFinalize();
 
   useEffect(() => {
     if (authenticator) {
@@ -34,18 +23,8 @@ export function EmailMagicLinkChallengePage() {
     }
   }, [authenticator, challenge]);
 
-  useEffect(() => {
-    if (verifyMagicLinkFinalizeResponse?.isVerified) {
-      // onVerificationSuccess({
-      //   verificationMethod: VerificationMethod.EMAIL_MAGIC_LINK,
-      // });
-    }
-  }, [verifyMagicLinkFinalizeResponse, onVerificationSuccess]);
-
   const resendLink = () => {
     if (!isLoading && authenticator) {
-      console.log("resend link");
-      console.log({ authenticator });
       challenge({ userAuthenticatorId: authenticator.userAuthenticatorId });
 
       toast.custom((activeToast) => (

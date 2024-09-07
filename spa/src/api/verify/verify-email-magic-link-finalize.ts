@@ -5,7 +5,7 @@ import { useSignalApi } from "@/lib/signal-api";
 
 import { EmailMagicLinkAuthenticator } from "../userAuthenticator/types";
 
-type VerifyEmailMagicLinkFinalizeSuccess = {
+export type VerifyEmailMagicLinkFinalizeSuccess = {
   isVerified: true;
   accessToken: string;
   recoveryCodes?: string[];
@@ -26,23 +26,24 @@ function useVerifyEmailMagicLinkFinalize() {
   const { onVerificationSuccess, isCognitoSignInLoading } =
     useOnVerificationSuccess();
 
+  useQuery({
+    queryKey: ["magic-link"],
+    queryFn: () =>
+      api
+        .post(`v1/client/verify/email-magic-link/finalize`)
+        .json<VerifyEmailMagicLinkFinalizeResponse>(),
+    onSuccess: (response: VerifyEmailMagicLinkFinalizeResponse) => {
+      if (response.isVerified) {
+        onVerificationSuccess(response);
+      }
+    },
+    refetchInterval: (data) => (data?.isVerified ? false : 1000),
+    refetchIntervalInBackground: true,
+    cacheTime: 0, // Do not cache the result to ensure that each individual magic link is verified
+  });
+
   return {
     isCognitoSignInLoading,
-    verifyEmailMagicLinkFinalize: useQuery({
-      queryKey: ["magic-link"],
-      queryFn: () =>
-        api
-          .post(`v1/client/verify/email-magic-link/finalize`)
-          .json<VerifyEmailMagicLinkFinalizeResponse>(),
-      onSuccess: (response: VerifyEmailMagicLinkFinalizeResponse) => {
-        if (response.isVerified) {
-          onVerificationSuccess(response);
-        }
-      },
-      refetchInterval: (data) => (data?.isVerified ? false : 1000),
-      refetchIntervalInBackground: true,
-      cacheTime: 0, // Do not cache the result to ensure that each individual magic link is verified
-    }),
   };
 }
 

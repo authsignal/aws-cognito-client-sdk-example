@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Home } from "./Home.tsx";
 import { SignIn } from "./SignIn.tsx";
-import { Callback } from "./Callback.tsx";
 import { Providers } from "./providers"; // Import Providers
 import "./index.css";
 
@@ -15,10 +14,6 @@ const router = createBrowserRouter([
   {
     path: "sign-in",
     element: <SignIn />,
-  },
-  {
-    path: "callback",
-    element: <Callback />,
   },
 ]);
 
