@@ -8,7 +8,7 @@ type Props = {
 export function Authenticate({ initialToken }: Props) {
   return (
     <TokenSwapper initialToken={initialToken}>
-      <EmailMagicLinkChallengePage />
+      <EmailMagicLinkChallengePage initialToken={initialToken} />
     </TokenSwapper>
   );
 }

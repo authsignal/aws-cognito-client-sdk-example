@@ -6,6 +6,7 @@ import {
   CognitoIdentityProviderClient,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { Authenticate } from "./authenticate";
+import { EmailMagicLinkChallengePage } from "./email-magic-link/email-magic-link-challenge-page";
 
 const cognitoClient = new CognitoIdentityProviderClient({
   region: "us-west-2",
@@ -52,7 +53,6 @@ async function handleSignInClick(username: string) {
   clearData();
 
   const signInResponse = await signIn(username).catch(async () => {
-    console.log("calling sign up");
     await signUp(username);
     return await signIn(username);
   });
@@ -62,15 +62,9 @@ async function handleSignInClick(username: string) {
     localStorage.setItem("username", username);
   }
 
-  console.log({ signInResponse });
-
   const token = signInResponse.ChallengeParameters?.token;
 
   return token;
-
-  // if (signInResponse.ChallengeParameters?.url) {
-  //   window.location.href = signInResponse.ChallengeParameters?.url;
-  // }
 }
 
 function clearData() {
@@ -88,7 +82,7 @@ export function SignIn() {
   const [initialToken, setInitialToken] = useState<null | string>(null);
 
   if (initialToken) {
-    return <Authenticate initialToken={initialToken}></Authenticate>;
+    return <EmailMagicLinkChallengePage initialToken={initialToken} />;
   }
 
   return (
@@ -107,8 +101,6 @@ export function SignIn() {
             setLoading(true);
 
             const token = await handleSignInClick(username);
-
-            console.log("Setting token");
 
             setInitialToken(token || null);
 

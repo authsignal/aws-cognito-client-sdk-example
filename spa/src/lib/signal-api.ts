@@ -3,10 +3,10 @@ import ky from "ky";
 import { useMemo } from "react";
 
 import { getPrefixUrlForRegion } from "@/helpers/api";
-import { getAccessToken } from "@/store/session";
+
 import { Region, regionAtom } from "@/store/session-config";
 
-export function useSignalApi() {
+export function useSignalApi({ initialToken }: { initialToken: string }) {
   const [region] = useAtom(regionAtom);
 
   const prefixUrl = getPrefixUrlForRegion(region);
@@ -18,10 +18,10 @@ export function useSignalApi() {
         hooks: {
           beforeRequest: [
             (request: Request) => {
-              const accessToken = getAccessToken();
+              // const accessToken = getAccessToken();
 
-              if (accessToken) {
-                request.headers.set("Authorization", `Bearer ${accessToken}`);
+              if (initialToken) {
+                request.headers.set("Authorization", `Bearer ${initialToken}`);
               }
             },
           ],

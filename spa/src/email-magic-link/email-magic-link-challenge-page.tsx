@@ -45,7 +45,11 @@ const cognitoClient = new CognitoIdentityProviderClient({
   region: "us-west-2",
 });
 
-export function EmailMagicLinkChallengePage() {
+export function EmailMagicLinkChallengePage({
+  initialToken,
+}: {
+  initialToken: string;
+}) {
   const [authenticator, setAuthenticator] =
     useState<EmailMagicLinkAuthenticator | null>(null);
   const [isCognitoSignInLoading, setIsCognitoSignInLoading] = useState(false);
@@ -53,7 +57,7 @@ export function EmailMagicLinkChallengePage() {
 
   const navigate = useNavigate();
 
-  const { api } = useSignalApi();
+  const { api } = useSignalApi({ initialToken });
 
   const cognitoSignIn = useCallback(
     async (token: string) => {
