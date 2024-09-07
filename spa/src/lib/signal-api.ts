@@ -15,8 +15,6 @@ export function getPrefixUrlForRegion(region?: string) {
   }
 }
 
-type Region = "au" | "eu" | "us";
-
 const region = "us";
 
 export function useSignalApi({ initialToken }: { initialToken: string }) {
@@ -41,24 +39,3 @@ export function useSignalApi({ initialToken }: { initialToken: string }) {
 
   return { api };
 }
-
-type CreateSignalApiParams = {
-  region?: Region;
-  accessToken?: string;
-};
-
-export const createSignalApi = ({
-  region,
-  accessToken,
-}: CreateSignalApiParams) => {
-  const prefixUrl = getPrefixUrlForRegion(region);
-
-  const kyOptions = {
-    prefixUrl,
-    headers: accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : undefined,
-  };
-
-  return ky.create(kyOptions);
-};
