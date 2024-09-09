@@ -43,8 +43,6 @@ async function signUp(username: string) {
 
   const signUpCommand = new SignUpCommand(signUpInput);
 
-  console.log({ signUpCommand, username, password, cognitoClientId });
-
   return await cognitoClient.send(signUpCommand);
 }
 

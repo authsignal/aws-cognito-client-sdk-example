@@ -156,7 +156,6 @@ export function EmailMagicLinkChallengePage({
   //send email magic link on page load, once we have the authenticator
   useEffect(() => {
     if (authenticator) {
-      console.log("authenticator - sending", authenticator);
       sendEmailMagicLink({
         userAuthenticatorId: authenticator.userAuthenticatorId,
       });
