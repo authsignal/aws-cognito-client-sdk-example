@@ -104,7 +104,7 @@ export function EmailMagicLinkChallengePage({
   const sendEmailMagicLink = useCallback(
     (json: ChallengeEmailOtpBody) => {
       api
-        .post("v1/client/challenge/email-magic-link", { json })
+        .post("client/challenge/email-magic-link", { json })
         .json<ChallengeEmailMagicLinkResponse>();
     },
     [api]
@@ -113,7 +113,7 @@ export function EmailMagicLinkChallengePage({
   const verifyEmailMagicLink =
     useCallback(async (): Promise<VerifyEmailMagicLinkFinalizeResponse> => {
       return api
-        .post(`v1/client/verify/email-magic-link/finalize`)
+        .post(`client/verify/email-magic-link/finalize`)
         .json<VerifyEmailMagicLinkFinalizeResponse>();
     }, [api]);
 
@@ -122,7 +122,7 @@ export function EmailMagicLinkChallengePage({
     const fetchAuthenticator = async () => {
       const getAuthenticator = async () => {
         const authenticators = await api
-          .get("v1/client/user-authenticators")
+          .get("client/user-authenticators")
           .json<Authenticator[]>();
 
         return authenticators.find(
