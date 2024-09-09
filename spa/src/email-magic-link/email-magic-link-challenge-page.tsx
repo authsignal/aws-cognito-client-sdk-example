@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-
 import {
   RespondToAuthChallengeCommand,
   CognitoIdentityProviderClient,
   ChallengeNameType,
 } from "@aws-sdk/client-cognito-identity-provider";
-
 import { useClientApi } from "../lib/client-api";
 import {
   Authenticator,
@@ -31,7 +29,6 @@ type VerifyEmailMagicLinkFinalizeResponse =
   | VerifyEmailMagicLinkFinalizeFailure;
 
 const cognitoClientId = import.meta.env.VITE_COGNITO_CLIENT_ID!;
-
 const cognitoClient = new CognitoIdentityProviderClient({
   region: "us-west-2",
 });
@@ -45,9 +42,7 @@ export function EmailMagicLinkChallengePage({
     useState<EmailMagicLinkAuthenticator | null>(null);
   const [isCognitoSignInLoading, setIsCognitoSignInLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
-
   const navigate = useNavigate();
-
   const { api } = useClientApi({ initialToken });
 
   const cognitoSignIn = useCallback(
@@ -74,7 +69,6 @@ export function EmailMagicLinkChallengePage({
       const respondToAuthChallengeCommand = new RespondToAuthChallengeCommand(
         respondToAuthChallengeInput
       );
-
       const response = await cognitoClient.send(respondToAuthChallengeCommand);
 
       localStorage.setItem("token", token);
@@ -84,7 +78,6 @@ export function EmailMagicLinkChallengePage({
           response.AuthenticationResult?.AccessToken
         );
       }
-
       if (response.AuthenticationResult?.RefreshToken) {
         localStorage.setItem(
           "refreshToken",
@@ -101,9 +94,7 @@ export function EmailMagicLinkChallengePage({
     async (json: ChallengeEmailOtpBody) => {
       const response = await api.fetch("/client/challenge/email-magic-link", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(json),
       });
       return response.json();
@@ -117,44 +108,38 @@ export function EmailMagicLinkChallengePage({
         "/client/verify/email-magic-link/finalize",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         }
       );
       return response.json();
     }, [api]);
 
-  //get the magic link authenticator
   useEffect(() => {
-    const fetchAuthenticator = async () => {
-      const getAuthenticator = async () => {
-        const response = await api.fetch("/client/user-authenticators", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const authenticators = await response.json();
-
-        return authenticators.find(
-          (
-            authenticator: Authenticator
-          ): authenticator is EmailMagicLinkAuthenticator => {
-            return authenticator.verificationMethod === "EMAIL_MAGIC_LINK";
-          }
-        );
-      };
-
-      const auth = await getAuthenticator();
+    const fetchAuthenticatorAndSendEmail = async () => {
+      const response = await api.fetch("/client/user-authenticators", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const authenticators = await response.json();
+      const auth = authenticators.find(
+        (
+          authenticator: Authenticator
+        ): authenticator is EmailMagicLinkAuthenticator =>
+          authenticator.verificationMethod === "EMAIL_MAGIC_LINK"
+      );
       setAuthenticator(auth || null);
+
+      if (auth) {
+        await sendEmailMagicLink({
+          userAuthenticatorId: auth.userAuthenticatorId,
+        });
+      }
     };
 
-    fetchAuthenticator();
-  }, [api]);
+    fetchAuthenticatorAndSendEmail();
+  }, [api, sendEmailMagicLink]);
 
-  //send email magic link on page load, once we have the authenticator
-  useEffect(() => {
+  const resendLink = useCallback(() => {
     if (authenticator) {
       sendEmailMagicLink({
         userAuthenticatorId: authenticator.userAuthenticatorId,
@@ -162,16 +147,6 @@ export function EmailMagicLinkChallengePage({
     }
   }, [authenticator, sendEmailMagicLink]);
 
-  const resendLink = () => {
-    if (authenticator) {
-      sendEmailMagicLink({
-        userAuthenticatorId: authenticator.userAuthenticatorId,
-      });
-    }
-  };
-
-  //Check if the email magic link has been verified
-  //if it has, sign in the user using Congito
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
@@ -191,7 +166,7 @@ export function EmailMagicLinkChallengePage({
     }
 
     return () => clearInterval(intervalId);
-  }, [api, isVerified, cognitoSignIn, verifyEmailMagicLink]);
+  }, [isVerified, cognitoSignIn, verifyEmailMagicLink]);
 
   if (isCognitoSignInLoading) {
     return (
@@ -202,27 +177,21 @@ export function EmailMagicLinkChallengePage({
   }
 
   return (
-    <>
-      <main className="custom-content-alignment flex flex-col gap-y-4">
-        <h1>Email Magic Link</h1>
-        <p>
-          Check your email:
-          <br />
-          {authenticator?.email ? (
-            <strong>{authenticator.email}</strong>
-          ) : (
-            "place@holder.com"
-          )}
-        </p>
-        <p>It could take a minute for the email to arrive</p>
-        <p>refresh-close-warning</p>
-        <a onClick={resendLink}>re-send-link</a>
-        <hr className="w-full border-divider" />
-        {/* <FooterLinks
-          fromUrl="/challenge/email-magic-link"
-          verificationMethod={VerificationMethod.EMAIL_MAGIC_LINK}
-        /> */}
-      </main>
-    </>
+    <main className="custom-content-alignment flex flex-col gap-y-4">
+      <h1>Email Magic Link</h1>
+      <p>
+        Check your email:
+        <br />
+        {authenticator?.email ? (
+          <strong>{authenticator.email}</strong>
+        ) : (
+          "place@holder.com"
+        )}
+      </p>
+      <p>It could take a minute for the email to arrive</p>
+      <p>refresh-close-warning</p>
+      <a onClick={resendLink}>re-send-link</a>
+      <hr className="w-full border-divider" />
+    </main>
   );
 }
