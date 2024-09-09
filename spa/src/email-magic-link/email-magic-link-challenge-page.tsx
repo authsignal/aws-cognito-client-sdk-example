@@ -5,11 +5,17 @@ import {
   ChallengeNameType,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { useClientApi } from "../lib/client-api";
-import {
-  Authenticator,
-  EmailMagicLinkAuthenticator,
-} from "@/api/userAuthenticator/types";
 import { useNavigate } from "react-router-dom";
+
+type EmailMagicLinkAuthenticator = {
+  userAuthenticatorId: string;
+  createdAt: string;
+  isDefault: boolean;
+  authenticatorType: "OOB";
+  oobChannel: "EMAIL_MAGIC_LINK";
+  verificationMethod: "EMAIL_MAGIC_LINK";
+  email: string;
+};
 
 type ChallengeEmailOtpBody = { userAuthenticatorId: string };
 
@@ -123,7 +129,7 @@ export function EmailMagicLinkChallengePage({
       const authenticators = await response.json();
       const auth = authenticators.find(
         (
-          authenticator: Authenticator
+          authenticator: EmailMagicLinkAuthenticator
         ): authenticator is EmailMagicLinkAuthenticator =>
           authenticator.verificationMethod === "EMAIL_MAGIC_LINK"
       );
