@@ -6,7 +6,7 @@ import {
   ChallengeNameType,
 } from "@aws-sdk/client-cognito-identity-provider";
 
-import { useClientApi } from "@/lib/signal-api";
+import { useClientApi } from "../lib/client-api";
 import {
   Authenticator,
   EmailMagicLinkAuthenticator,
