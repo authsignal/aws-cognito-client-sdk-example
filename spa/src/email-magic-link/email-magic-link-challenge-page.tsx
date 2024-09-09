@@ -6,7 +6,7 @@ import {
   ChallengeNameType,
 } from "@aws-sdk/client-cognito-identity-provider";
 
-import { useSignalApi } from "@/lib/signal-api";
+import { useClientApi } from "@/lib/signal-api";
 import {
   Authenticator,
   EmailMagicLinkAuthenticator,
@@ -14,10 +14,6 @@ import {
 import { useNavigate } from "react-router-dom";
 
 type ChallengeEmailOtpBody = { userAuthenticatorId: string };
-
-type ChallengeEmailMagicLinkResponse = {
-  challengeId: string;
-};
 
 export type VerifyEmailMagicLinkFinalizeSuccess = {
   isVerified: true;
@@ -52,7 +48,7 @@ export function EmailMagicLinkChallengePage({
 
   const navigate = useNavigate();
 
-  const { api } = useSignalApi({ initialToken });
+  const { api } = useClientApi({ initialToken });
 
   const cognitoSignIn = useCallback(
     async (token: string) => {
@@ -102,28 +98,44 @@ export function EmailMagicLinkChallengePage({
   );
 
   const sendEmailMagicLink = useCallback(
-    (json: ChallengeEmailOtpBody) => {
-      api
-        .post("client/challenge/email-magic-link", { json })
-        .json<ChallengeEmailMagicLinkResponse>();
+    async (json: ChallengeEmailOtpBody) => {
+      const response = await api.fetch("/client/challenge/email-magic-link", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(json),
+      });
+      return response.json();
     },
     [api]
   );
 
   const verifyEmailMagicLink =
     useCallback(async (): Promise<VerifyEmailMagicLinkFinalizeResponse> => {
-      return api
-        .post(`client/verify/email-magic-link/finalize`)
-        .json<VerifyEmailMagicLinkFinalizeResponse>();
+      const response = await api.fetch(
+        "/client/verify/email-magic-link/finalize",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.json();
     }, [api]);
 
   //get the magic link authenticator
   useEffect(() => {
     const fetchAuthenticator = async () => {
       const getAuthenticator = async () => {
-        const authenticators = await api
-          .get("client/user-authenticators")
-          .json<Authenticator[]>();
+        const response = await api.fetch("/client/user-authenticators", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const authenticators = await response.json();
 
         return authenticators.find(
           (
