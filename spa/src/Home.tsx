@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { authsignal } from "./authsignal";
 
 const clearData = async () => {
   localStorage.setItem("username", "");
@@ -7,7 +8,7 @@ const clearData = async () => {
   localStorage.setItem("token", "");
   localStorage.setItem("refreshToken", "");
   localStorage.setItem("accessToken", "");
-}
+};
 
 export function Home() {
   const [accessToken, setAccessToken] = useState("");
@@ -20,6 +21,31 @@ export function Home() {
       navigate("/sign-in");
     }
   }, [navigate]);
+
+  async function promptToCreatePasskey() {
+    // The Authsignal SDK requires an authenticated user token to create a passkey
+    // To keep the demo simple, we use the token returned from the successful pre-built UI login attempt
+    // This token is only valid for 10 mins - you can also generate a new one from your backend
+    // https://docs.authsignal.com/scenarios/passkeys-client-sdk#creating-a-passkey
+    const token = localStorage.getItem("authsignal_token");
+
+    localStorage.removeItem("authsignal_token");
+
+    // True if a passkey has already been created on this device using the Web SDK
+    const isPasskeyAvailable = await authsignal.passkey.isAvailableOnDevice();
+
+    if (token && !isPasskeyAvailable) {
+      const result = await authsignal.passkey.signUp({ token });
+
+      if (result) {
+        alert("Passkey created!");
+      }
+    }
+  }
+
+  useEffect(() => {
+    promptToCreatePasskey();
+  });
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");

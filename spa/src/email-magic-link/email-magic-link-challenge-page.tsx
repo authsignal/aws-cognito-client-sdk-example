@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  RespondToAuthChallengeCommand,
-  CognitoIdentityProviderClient,
-  ChallengeNameType,
-} from "@aws-sdk/client-cognito-identity-provider";
 import { useClientApi } from "../lib/client-api";
-import { useNavigate } from "react-router-dom";
 
 type EmailMagicLinkAuthenticator = {
   userAuthenticatorId: string;
@@ -34,67 +28,21 @@ type VerifyEmailMagicLinkFinalizeResponse =
   | VerifyEmailMagicLinkFinalizeSuccess
   | VerifyEmailMagicLinkFinalizeFailure;
 
-const cognitoClientId = import.meta.env.VITE_COGNITO_CLIENT_ID!;
-const cognitoClient = new CognitoIdentityProviderClient({
-  region: "us-west-2",
-});
-
 export function EmailMagicLinkChallengePage({
   initialToken,
+  cognitoSignIn,
+  isCognitoSignInLoading,
 }: {
   initialToken: string;
+  cognitoSignIn: (accessToken: string) => void;
+  isCognitoSignInLoading: boolean;
 }) {
   const [authenticator, setAuthenticator] =
     useState<EmailMagicLinkAuthenticator | null>(null);
-  const [isCognitoSignInLoading, setIsCognitoSignInLoading] = useState(false);
+
   const [isVerified, setIsVerified] = useState(false);
-  const navigate = useNavigate();
+
   const { api } = useClientApi({ initialToken });
-
-  const cognitoSignIn = useCallback(
-    async (token: string) => {
-      setIsCognitoSignInLoading(true);
-      const session = localStorage.getItem("session");
-      const username = localStorage.getItem("username");
-
-      if (!token || !session || !username) {
-        navigate("/");
-        return;
-      }
-
-      const respondToAuthChallengeInput = {
-        ChallengeName: ChallengeNameType.CUSTOM_CHALLENGE,
-        ClientId: cognitoClientId,
-        Session: session,
-        ChallengeResponses: {
-          USERNAME: username,
-          ANSWER: JSON.stringify({ token }),
-        },
-      };
-
-      const respondToAuthChallengeCommand = new RespondToAuthChallengeCommand(
-        respondToAuthChallengeInput
-      );
-      const response = await cognitoClient.send(respondToAuthChallengeCommand);
-
-      localStorage.setItem("token", token);
-      if (response.AuthenticationResult?.AccessToken) {
-        localStorage.setItem(
-          "accessToken",
-          response.AuthenticationResult?.AccessToken
-        );
-      }
-      if (response.AuthenticationResult?.RefreshToken) {
-        localStorage.setItem(
-          "refreshToken",
-          response.AuthenticationResult?.RefreshToken
-        );
-      }
-      setIsCognitoSignInLoading(false);
-      navigate("/");
-    },
-    [navigate]
-  );
 
   const sendEmailMagicLink = useCallback(
     async (json: ChallengeEmailOtpBody) => {
@@ -161,6 +109,10 @@ export function EmailMagicLinkChallengePage({
       if (response.isVerified) {
         setIsVerified(true);
         cognitoSignIn(response.accessToken);
+
+        response.accessToken &&
+          localStorage.setItem("authsignal_token", response.accessToken);
+
         clearInterval(intervalId);
       }
     };
