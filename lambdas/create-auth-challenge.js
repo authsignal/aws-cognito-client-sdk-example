@@ -22,11 +22,12 @@ export const handler = async (event) => {
   }
 
   const { url } = await authsignal.track({
-    action: "cognitoAuth",
     userId,
-    email,
-    redirectUrl: "http://localhost:5173/callback",
-    redirectToSettings: false,
+    action: "cognitoAuth",
+    attributes: {
+      email,
+      redirectUrl: "http://localhost:5173/callback",
+    },
   });
 
   event.response.publicChallengeParameters = { url };
